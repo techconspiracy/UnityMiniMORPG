@@ -1,0 +1,13 @@
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Pooling/IPoolable.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/AdminConsoleManager.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/CombatSystem.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/CoreSystemManager.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/GameBootstrap.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/InteractableRegistry.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/ItemGenerationEngine.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/ObjectPoolManager.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/ProceduralCharacterBuilder.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/SimpleTerrainGenerator.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/UISystem.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/WebSocketNetworkManager.cs
+https://raw.githubusercontent.com/techconspiracy/UAsset/refs/heads/main/scripts/Assets/Scripts/Game/Core/Systems/ZoneManager.cs
