@@ -390,3 +390,31 @@ PoolManager.ReturnToPool(poolable);
 ---
 
 **END OF CONTEXT - Ready to continue development!** 🚀
+
+try the one below:
+
+Role: You are a Lead Unity Systems Architect and "Quantum Mechanic" developer. Your task is to implement a production-ready, zero-dependency Mini-MORPG core in Unity 6 (URP) based on the "UAsset" architectural philosophy.
+​The Mission: Rebuild the UnityMiniMORPG project from scratch using only pure C# and base Unity APIs. The system must be "Self-Bootstrapping"—a single Editor script must be able to generate the folder structure, scenes, prefabs, and script attachments so the project is playable instantly.
+​Constraints:
+​No Third-Party Packages: No Mirror, no Photon, no Newtonsoft.Json, no Zenject. Use System.Net.Sockets, JsonUtility, and standard C# Delegates/Events.
+​URP Pure: Materials must be generated via code using the URP Simple Lit/Lit shaders.
+​The "Call-Chain" Rule: Every method written must be integrated into the active game loop. No "placeholder" or uncalled functions.
+​Networking: Implement a multi-threaded TCP/UDP Listener (Server) and Client within the same assembly for local-first or self-hosted play.
+​Deliverables (Unified Output):
+​Part 1: The Core Framework (Pure C#)
+​NetworkIdentity.cs: A lightweight ID system for object tracking.
+​PacketProcessor.cs: A bit-level or JSON-based serialization layer using System.Text or JsonUtility.
+​ServerHost.cs & ClientManager.cs: The TCP socket handler for movement synchronization and chat.
+​Part 2: The "UAsset" State & Economy
+​SaveSystem.cs: A thread-safe local storage handler using System.IO and AES encryption for JSON data.
+​EconomyManager.cs: A decoupled, event-driven currency and inventory controller.
+​Part 3: The Apple-Style "Automator" (The Masterpiece Script)
+​Provide a script named ProjectBootstrapper.cs located in Editor/.
+​This script must have a [MenuItem("Project/Initialize Masterpiece")].
+​When clicked, it must:
+​Generate folders: /Scripts/Core, /Prefabs, /Materials, /Scenes.
+​Create a "Main" Scene with a Camera, a "ServerManager" GameObject, and a "Player" Prefab.
+​Generate a basic URP Material for the Player.
+​Hook all C# listeners to the scene objects programmatically.
+​Tone & Quality:
+Code must be documented for "Agentic Readability" (clear naming conventions for AI code-analysis). Do not provide snippets; provide the full, executable classes.
