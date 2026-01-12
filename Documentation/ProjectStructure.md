@@ -3,79 +3,57 @@
 ## Directory Layout
 
 ```
-UAssetMMORPG/                           (Unity Project Root)
+UnityMiniMORPG/
 │
-├── Assets/
-│   ├── Scenes/
-│   │   ├── Bootstrap.unity             ⭐ Main entry scene
-│   │   ├── MainMenu.unity              Initial menu scene
-│   │   └── Zones/                      Generated zones saved here
-│   │       ├── TestZone.unity
-│   │       ├── ForestArea_01.unity
-│   │       └── DungeonLevel_01.unity
-│   │
-│   ├── Scripts/
-│   │   └── Game/
-│   │       └── Core/
-│   │           ├── Pooling/
-│   │           │   └── IPoolable.cs                    (270 lines)
-│   │           │
-│   │           └── Systems/
-│   │               ├── GameBootstrap.cs                (180 lines) ⭐ Entry point
-│   │               ├── CoreSystemManager.cs            (200 lines) System hub
-│   │               ├── ObjectPoolManager.cs            (380 lines) Pooling
-│   │               ├── ZoneSceneManager.cs             (450 lines) Zone management
-│   │               ├── SimpleTerrainGenerator.cs       (160 lines) Terrain gen
-│   │               ├── InteractableRegistry.cs         (180 lines) Interactables
-│   │               ├── ProceduralCharacterBuilder.cs   (280 lines) Character gen
-│   │               ├── ItemGenerationEngine.cs         (520 lines) Item gen
-│   │               ├── CombatSystem.cs                 (350 lines) Combat
-│   │               ├── UISystem.cs                     (300 lines) UI
-│   │               ├── AdminConsoleManager.cs          (480 lines) Admin console
-│   │               └── WebSocketNetworkManager.cs      (50 lines)  Networking stub
-│   │
-│   ├── Prefabs/
-│   │   ├── DamageNumber.prefab         Pooled damage number
-│   │   ├── Projectile.prefab           Pooled projectile
-│   │   └── LootItem.prefab             Pooled loot drop
-│   │
-│   ├── Resources/
-│   │   └── (Unity default resources)
-│   │
-│   └── Documentation/                  📚 All docs go here
-│       ├── README.md                   ⭐ Start here
-│       ├── QUICK_START.md              10-min setup
-│       ├── INSTALLATION_GUIDE.md       Detailed install
-│       ├── USER_MANUAL.md              Gameplay guide
-│       ├── API_DOCUMENTATION.md        Dev reference
-│       ├── EXAMPLES.md                 Code samples
-│       ├── ARCHITECTURE.md             System design
-│       └── PROJECT_STRUCTURE.md        This file
-│
-├── ProjectSettings/                    Unity project settings
-├── Packages/                           Package Manager cache
-└── Library/                            Unity build cache
-
-Total Core Scripts: 12 files
-Total Lines of Code: ~3,800 lines
-Documentation: 8 comprehensive guides
+├── Core/
+│   ├── GameBootstrap.cs
+│   ├── EnhancedGameBootstrap.cs
+│   ├── CoreSystemManager.cs
+│   ├── SystemManagers.cs
+│   └── GameWorldInitializer.cs
+├── Framework/
+│   ├── ObjectPoolManager.cs
+│   ├── WebSocketNetworkManager.cs
+│   └── Pooling/
+│       └── IPoolable.cs
+├── Gameplay/
+│   ├── PlayerController.cs
+│   ├── ProceduralCharacterBuilder.cs
+│   ├── InteractableRegistry.cs
+│   ├── ZoneSceneManager.cs
+│   └── SimpleTerrainGenerator.cs
+├── Systems/
+│   ├── CombatSystem.cs
+│   ├── EntitySystemManager.cs
+│   ├── InventorySystemManager.cs
+│   ├── ItemGenerationEngine.cs
+│   ├── LootSystemManager.cs
+│   ├── LootTableEditorController.cs
+│   ├── QuestSystemData.cs
+│   ├── QuestSystemManager.cs
+│   ├── TutorialSystemManager.cs
+│   └── UISystem.cs
+├── UI/ (player-facing interfaces and HUDs)
+├── Editor/ (setup and debugging helpers)
+├── Documentation/
+│   ├── Readme.md
+│   ├── GettingStarted.md
+│   ├── InstallationGuide.md
+│   ├── ProjectStructure.md
+│   └── TechnicalSpecifications.md
+├── InputSystem_Actions.* (input definition asset)
+├── CombineScripts.bat
+├── Monolith.md
+└── README.md
 ```
+
+See the sections below for detailed descriptions of each folder.
 
 ---
 
 ## File Descriptions
 
-### Core Scripts (Assets/Scripts/Game/Core/)
-
-#### Pooling/
-**IPoolable.cs** (270 lines)
-- Interface for all poolable objects
-- Base `PoolableObject` class for quick implementation
-- Lifecycle methods: OnSpawnFromPool, OnReturnToPool
-- Used by: All pooled entities (projectiles, effects, damage numbers)
-
-#### Systems/
-
+### Core/
 **GameBootstrap.cs** (180 lines) ⭐
 - Application entry point
 - Ensures CoreSystemManager exists
@@ -83,13 +61,36 @@ Documentation: 8 comprehensive guides
 - Performance settings configuration
 - Used by: Place on GameObject in Bootstrap scene
 
-**CoreSystemManager.cs** (200 lines)
-- Central system hub (singleton)
-- Initializes all subsystems in correct order
-- Public accessors for all managers
-- Graceful shutdown handling
-- Used by: All systems reference this for cross-system communication
+**EnhancedGameBootstrap.cs** (235 lines)
+- Streamlined bootstrap that skips character creation and can transition directly into GameWorld or MainMenu
+- Auto-creates default character data, ensures CoreSystemManager readiness, and mirrors performance settings
+- Optionally starts the tutorial flow when the target scene loads
 
+**CoreSystemManager.cs** (206 lines)
+- Central system hub (singleton)
+- Initializes pools, network, zone, entity, combat, inventory, audio, UI, and console managers in dependency order
+- Provides static accessors plus graceful shutdown helpers
+- Used by: All systems during initialization and GameBootstrap when spinning up core systems
+
+**SystemManagers.cs** (126 lines)
+- Hosts `ZoneSystemManager` to orchestrate zone loading, generation, and cached transitions through `ZoneSceneManager`
+- Hosts `AudioSystemManager` for music, SFX playback, and runtime volume controls
+- Used by: CoreSystemManager to expose higher-level system helpers
+
+**GameWorldInitializer.cs** (145 lines)
+- Waits for CoreSystemManager readiness, optionally generates the starting zone, and spawns the player character
+- Reuses `ProceduralCharacterBuilder` and saved creation data to rebuild the player mesh and stats
+- Positions the player at spawn points, wires up `PlayerController`, and attaches the camera
+
+### Framework/
+#### Pooling/
+**IPoolable.cs** (270 lines)
+- Interface for all poolable objects
+- Base `PoolableObject` class for quick implementation
+- Lifecycle methods: `OnSpawnFromPool`, `OnReturnToPool`
+- Used by: All pooled entities (projectiles, effects, damage numbers)
+
+#### Infrastructure/
 **ObjectPoolManager.cs** (380 lines)
 - Generic object pooling system
 - Zero-allocation Get/Return operations
@@ -97,69 +98,106 @@ Documentation: 8 comprehensive guides
 - Pre-warming and dynamic growth
 - Used by: Combat (projectiles), UI (damage numbers), Items (loot drops)
 
-**ZoneSceneManager.cs** (450 lines)
-- Zone generation and loading
-- Scene caching system
-- Spawn point management
-- Zone boundaries
-- Used by: World exploration, zone transitions
-
-**SimpleTerrainGenerator.cs** (160 lines)
-- Procedural terrain mesh generation
-- Perlin noise-based height maps
-- Biome-specific modifiers
-- Walkable with colliders
-- Used by: ZoneSceneManager for terrain creation
-
-**InteractableRegistry.cs** (180 lines)
-- Registry for all interactable objects
-- Base InteractableObject class
-- Door, Chest, Ladder implementations
-- Range-based queries
-- Used by: Player interaction system
-
-**ProceduralCharacterBuilder.cs** (280 lines)
-- Character model generation
-- 10 species with male/female variants
-- Body type variations
-- Mesh combining for optimization
-- Used by: Character creation, NPC spawning
-
-**ItemGenerationEngine.cs** (520 lines)
-- Hybrid item generation (pre-gen + on-demand)
-- 50+ weapon archetypes
-- 30+ armor types
-- Affix system
-- Cache management
-- Used by: Loot system, shops, quest rewards
-
-**CombatSystem.cs** (350 lines)
-- Damage calculation with all modifiers
-- EntityStats component
-- Ability system controller
-- Damage number spawning
-- Combat events
-- Used by: Player combat, enemy AI, abilities
-
-**UISystem.cs** (300 lines)
-- HUD controller (Doom-style bars)
-- Menu management (D&D-style panels)
-- Inventory, character sheet, spellbook
-- Auto-updating health/mana/stamina
-- Used by: Player interface
-
-**AdminConsoleManager.cs** (480 lines)
-- F12 console framework
-- 7 editor tabs (Pool, Weapon, Armor, Spell, Entity, Zone, Player)
-- Host-only authorization
-- Time pause on open
-- Used by: Admin/testing/debugging
-
 **WebSocketNetworkManager.cs** (50 lines)
 - LAN multiplayer stub
 - Host/client model
 - To be expanded in Phase 5
 - Used by: Multiplayer sessions
+
+### Gameplay/
+**PlayerController.cs** (659 lines)
+- First-person movement, gravity, sprint, and stamina management tied to `EntityStats`
+- Mouse-look with clamped vertical rotation and cursor locking
+- Handles combat input, interaction range checks, and camera smoothing
+- Used by: Player characters spawned by `GameWorldInitializer`
+
+**ProceduralCharacterBuilder.cs** (289 lines)
+- Procedurally generates mesh-based characters per species, gender, and body data
+- Combines body/head meshes, applies skin materials, and adds controllers/animators
+- Used by: Character creation, GameWorld spawning, and tutorial scenes
+
+**InteractableRegistry.cs** (180 lines)
+- Registry for all interactable objects
+- Base `InteractableObject` class plus door, chest, and ladder implementations
+- Range-based queries and helper lookups
+- Used by: Player interaction system and UI prompts
+
+**ZoneSceneManager.cs** (450 lines)
+- Zone generation and loading with cached scene handling
+- Spawn point management and zone boundary enforcement
+- Used by: World exploration and `CoreSystemManager` zone transitions
+
+**SimpleTerrainGenerator.cs** (160 lines)
+- Procedural terrain mesh generation
+- Perlin noise-based height maps with biome modifiers
+- Walkable meshes with collider baking
+- Used by: `ZoneSceneManager` for terrain creation
+
+### Systems/
+**ItemGenerationEngine.cs** (520 lines)
+- Hybrid item generation (pre-gen + on-demand)
+- 50+ weapon archetypes and 30+ armor types
+- Affix system and cache management
+- Used by: Loot system, shops, quest rewards
+
+**CombatSystem.cs** (350 lines)
+- Damage calculation with all modifiers
+- `EntityStats` component handling
+- Ability system controller and damage number spawning
+- Combat events for loot and quest tracking
+
+**InventorySystemManager.cs** (520 lines)
+- Manages player and entity inventories with stacking and equipment slots
+- Supports adding/removing items, equipping weapons or armor, and recalculating stats
+- Raises events when inventories or equipment change
+- Used by: UI, quest tracking, and inventory workflows
+
+**LootSystemManager.cs** (540 lines)
+- Loot drops, tables, and weighted rarity rolls
+- Integrates with `ItemGenerationEngine` and auto-drops on death
+- Maintains world loot, including item and gold spawning
+- Used by: Combat events and tutorial scenarios
+
+**LootTableEditorController.cs** (400 lines)
+- Admin console panel for creating and editing loot tables
+- Dropdowns and inputs for table metadata, along with test drop tooling
+- Saves edits back to `LootSystemManager` and shows preview text
+
+**QuestSystemData.cs** (108 lines)
+- Data-only containers for quests, objectives, statuses, and types
+- Helpers to check completion, report progress, and reset objectives
+- Used by: `QuestSystemManager` to keep quest data descriptive
+
+**QuestSystemManager.cs** (525 lines)
+- Manages quest database with start, completion, and failure events
+- Supports kill, collect, talk, explore, escort, and deliver objectives plus rewards
+- Subscribes to combat and inventory hooks to progress objectives
+- Used by: UI and tutorial systems to surface quests
+
+**TutorialSystemManager.cs** (662 lines)
+- Orchestrates a scripted tutorial demonstrating combat, loot, and quest flow
+- Builds tutorial UI, spawns placeholder entities, and steps through scripted objectives
+- Auto-starts when the GameWorld scene loads to validate the full loop
+
+**EntitySystemManager.cs** (534 lines)
+- Manages entity spawning, lifecycle, and AI coordination
+- Registers and warms pools for enemies and NPCs via `ObjectPoolManager`
+- Tracks active entities, handles despawn logic, and initializes AI
+- Used by: Combat, quest, and tutorial scenarios
+
+**UISystem.cs** (300 lines)
+- HUD controller (Doom-style bars) and menu management (D&D-style panels)
+- Inventory, character sheet, spellbook, and auto-updating health/mana/stamina
+- Used by: Player interface
+
+### UI/
+- Contains player-facing controllers such as `InventoryUI`, `QuestUI`, `CharacterCreationUI`, `NetworkUI`, and `AdminConsoleManager`
+- `AdminConsoleManager.cs` (480 lines) manages the F12 console with tabs for pools, weapons, armor, spells, entities, zones, and players, plus host-only authorization with time pause
+- UI screens subscribe to core systems for live updates and provide debugging shortcuts
+
+### Editor/
+- Houses setup utilities like `CompleteRPGSetupTool`, `QuickSetup`, `QuickFix`, and `TutorialSetupTool`
+- These scripts automate scene creation, configuration fixes, and tutorial scaffolding without touching runtime namespaces
 
 ---
 
